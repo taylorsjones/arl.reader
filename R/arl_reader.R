@@ -1,14 +1,9 @@
 #R version of the ARL reader
-require('proj4')
-require('raster')
-require('maps')
-require('mapdata')
-require('rts')
+require('proj4')   #needed for CRS definitions
+require('raster')  #creates raster objects
+require('rts')     #creates raster time series (RTS) objects
 
-#' Read a header block from an ARL file
-#'
-#' @param f file handler object
-#' @return A named list of all of the header info.
+
 ARL_read_main_header <- function(f){
 	h <- list()
 	fh <- readChar(f,50)
@@ -105,7 +100,6 @@ ARL_read_variable <- function(f,h,x1,x2,y1,y2){
 	return(output)
 }
 
-
 #' Read an ARL file
 #'
 #' @param file_to_read the name of the file to read in
@@ -113,14 +107,14 @@ ARL_read_variable <- function(f,h,x1,x2,y1,y2){
 #' @param ll the lat and lon of the lower-left corner of the area to extract
 #' @param ur the lat and lon of the upper-right corner of the area to extract
 #' @param latlon whether to convert the raster to lat-lon grid. Otherwise it stays in the native projection
+#' @param verbose whether to output additional messages during extraction'
 #' @return for 2d variables, a raster time series object is returned. For 3d variables, a list of RTS objects is returned, one for each altitude.
 #' @examples
 #' file_to_read <- 'hysplit.20161020.00z.hrrra'
-#' var_i_want <- 'UWND'
 #' lower_left <- c(-73,40)
 #' upper_left <- c(-70,43)
 #' pbl <- ARL_read(file_to_read,"PBLH",ll=lower_left,ur=upper_right)
-
+#' plot(pbl)
 ARL_read <- function(file_to_read,var_i_want,ll,ur,latlon=TRUE, verbose=FALSE){
 	f = file(file_to_read,'rb')
 	raster_list <- list()
@@ -183,9 +177,6 @@ ARL_read <- function(file_to_read,var_i_want,ll,ur,latlon=TRUE, verbose=FALSE){
 	unique_levels <- unique(levels)
 	unique_datetimes <- unique(datetimes)
 
-	print(unique_levels)
-	print(unique_datetimes)
-
 	if( length( unique_levels ) > 1){
 		rts_list <- list()
   	output <- list()
@@ -207,63 +198,3 @@ ARL_read <- function(file_to_read,var_i_want,ll,ur,latlon=TRUE, verbose=FALSE){
 		return(rts_object)
 	}
 }
-
-file_to_read <- 'hysplit.20161020.00z.hrrra'
-var_i_want <- 'UWND' #the variable you want to extract
-#ll <- c(-122,40) #lower left corner of interest (lon,lat)
-#ur <- c(-120,41) #upper right corner of interest (lon,lat)
-
-#Boston:
-ll <- c(-73,40)
-ur <- c(-70,43)
-
-#SFBA:
-#ll <- c(-125,30)
-#ur <- c(-68,50)
-
-#ll <- c(-125,30) #lower left corner of interest (lon,lat)
-#ur <- c(-115,50) #upper right corner of interest (lon,lat)
-#var_i_want <- 'U10M' #the variable you want to extract
-
-#h <- ARL_read_main_header(f)
-
-#if(var_i_want %in% h$d2_vars){
-#	message('2D var detected')
-#} else if(var_i_want %in% h$d3_vars){#
-#	message('3D var detected')
-#} else {
-#	message('Variable not found! Detected variables:')
-#	message('2d variables: ')
-#	message(h$d2_vars)
-#	message('3d variables: ')
-#	message(h$d3_vars)
-#}
-
-#ll_xy <- project( ll, h$proj )
-#x1 <- findInterval(ll_xy[1],h$xx)
-#y1 <- findInterval(ll_xy[2],h$yy)
-#if( (x1==0) | (y1==0) ){
-#	message("ERROR: Point is outside of domain!")
-#}
-
-#ur_xy <- project( ur, h$proj )
-#x2 <- findInterval(ur_xy[1],h$xx)
-#y2 <- findInterval(ur_xy[2],h$yy)
-
-
-#foo <- ARL_read_levels(f,h,var_i_want,x1,x2,y1,y2)
-#while( readChar(f,1) == ''){}
-
-#seek(f,-1,"current")
-#h2 <- ARL_read_main_header(f)
-#foo2 <- ARL_read_levels(f,h,var_i_want,x1,x2,y1,y2)
-#close(f)
-
-#ras <- raster(foo$map ,crs=h$proj, xmn=ll_xy[1], xmx=ur_xy[1], ymn=ll_xy[2], ymx=ur_xy[2] )
-#r   <- projectRaster(ras,crs = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
-
-#cuts=seq(290,310,10)
-#pal <- colorRampPalette(c("white","black"))
-
-#plot(r) #, breaks=cuts, col = pal(10))
-#map('worldHires',add=T)

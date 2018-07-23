@@ -16,6 +16,8 @@ ARL_read(file_to_read, var_i_want, ll, ur, latlon = TRUE, verbose = FALSE)
 \item{ur}{the lat and lon of the upper-right corner of the area to extract}
 
 \item{latlon}{whether to convert the raster to lat-lon grid. Otherwise it stays in the native projection}
+
+\item{verbose}{whether to output additional messages during extraction'}
 }
 \value{
 for 2d variables, a raster time series object is returned. For 3d variables, a list of RTS objects is returned, one for each altitude.
@@ -25,8 +27,8 @@ Read an ARL file
 }
 \examples{
 file_to_read <- 'hysplit.20161020.00z.hrrra'
-var_i_want <- 'UWND'
 lower_left <- c(-73,40)
 upper_left <- c(-70,43)
 pbl <- ARL_read(file_to_read,"PBLH",ll=lower_left,ur=upper_right)
+plot(pbl)
 }
